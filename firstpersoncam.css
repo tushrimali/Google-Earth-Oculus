@@ -1,0 +1,61 @@
+body {
+  font-family: arial; 
+}
+
+textarea {
+  padding: 6px;
+}
+
+form {
+  /***
+  border: 1px solid silver; 
+  **/
+  padding: 3px; 
+  background: #fafafa; 
+  margin-bottom: 0px; 
+  width: 100%
+}
+
+#eval_out {
+  margin-top: 3px; 
+  border: 1px solid silver; 
+  height: 200px; 
+  overflow: auto; 
+  background: white;
+  font-size: 9pt;
+
+}
+
+#samples {
+  margin-left: 8px; 
+  margin-right: 8px; 
+  border: 1px solid silver; 
+  padding: 4px; 
+  width: 280px;
+  height: 300px;
+  border: 1px solid #ddd;
+}
+
+.run_sample {
+  font-size: x-small;
+  float: right;
+}
+
+#map3d {
+  border: 1px solid silver; 
+  height: 400px; 
+  width: 100%;
+}
+
+#load_sample_label {  
+  font-weight: bold; 
+  margin-bottom: 4px;
+}
+
+
+#toolbar {
+  font-size: 9pt;
+  float: right;
+  padding-top: 4px;
+}
+

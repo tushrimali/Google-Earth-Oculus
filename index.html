@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN""http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html>
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<!--
+Copyright 2008 Google Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+  <title>Simple First Person Camera</title>
+  <link rel=stylesheet href='firstpersoncam.css' type='text/css' />
+  <!-- *** Replace the key below below with your own API key, available at http://code.google.com/apis/maps/signup.html *** -->
+  <script src="http://www.google.com/jsapi?key=AIzaSyALtjBBO2mkgzbmXjAZaWsnCH7UJ6uK7oM"></script>
+  <script type="text/javascript" src="math3d.js"></script>
+  <script type="text/javascript" src="keyboard-focus-hack.js"></script>
+  <script type="text/javascript" src="firstpersoncam.js"></script>
+  <script type="text/javascript">
+google.load("earth", "1");
+google.load("maps", "2");
+
+var ge = null;
+var ge2 = null;
+var cam;
+var cam2;
+var timeAtStartup;
+
+var DEFAULT_HEADING_OFFSET = 2.5; // degrees
+var UPDATE_INTERVAL = 10; // ms
+
+function el(e) { return document.getElementById(e); }
+
+function init() {
+  init3D();
+}
+
+function initCB(object) {
+  ge = object;
+  ge.getOptions().setFlyToSpeed(100);
+  ge.getLayerRoot().enableLayerById(ge.LAYER_BUILDINGS, true);
+  ge.getWindow().setVisibility(true);
+  cam = new FirstPersonCam();
+  cam.updateCamera();
+  keyboardFocusHack(ge);
+  google.earth.addEventListener(ge.getView(), "viewchange", updateView1);
+  //window.addEventListener("keydown", updateView1);
+}
+
+function initCB2(object) {
+  var elapsedStartupTime = (new Date()).getTime() - timeAtStartup;
+  ge2 = object;
+  //ge2.getOptions().setFlyToSpeed(100);
+  ge2.getLayerRoot().enableLayerById(ge.LAYER_BUILDINGS, true);
+  ge2.getWindow().setVisibility(true);
+  setTimeout(function() { ready_for_updates = true; }, 3000);
+  updateView1();
+}
+
+
+
+
+function failureCB(object) {
+  /***
+   * This function will be called if plugin fails to load, in case
+   * you need to handle that error condition.
+   ***/
+}
+
+function init3D() {
+  timeAtStartup = (new Date()).getTime();
+  google.earth.createInstance("map3d", initCB, failureCB);
+  google.earth.createInstance("map3d2", initCB2, failureCB);
+}
+
+var ready_for_updates = false;
+
+updateView1 = function() {
+    updateView(ge, ge2);
+}
+
+updateView = function (master, slave) {
+  // Don't try to update the other instance every frame end -- give it some
+  // leeway with a short pause between updates.
+  if (!ready_for_updates) {
+    return;
+  }
+
+  ready_for_updates = false;
+  setTimeout(function() { ready_for_updates = true; }, UPDATE_INTERVAL);
+
+  var la = master.getView().copyAsLookAt(master.ALTITUDE_RELATIVE_TO_GROUND);
+  if (slave != null) {
+    slave.getOptions().setFlyToSpeed(slave.SPEED_TELEPORT);
+    var lookAtNew = slave.createLookAt('');
+    // Try to grab the user preference for angle.  If none is available, use the
+    // default value.
+    offset = parseFloat(el('angle').value);
+    if (isNaN(offset)) {
+      offset = DEFAULT_HEADING_OFFSET;
+    }
+    lookAtNew.set(la.getLatitude(), la.getLongitude(), 
+                  la.getAltitude(), la.getAltitudeMode(),
+                  ((la.getHeading() + offset) % 360.0),
+                  la.getTilt(), la.getRange());
+    slave.getView().setAbstractView(lookAtNew);
+  }
+}
+
+
+adjustTableSize = function() {
+  width = parseInt(el('tablewidth').value);
+  height = parseInt(el('tableheight').value);
+  if (isNaN(width) || isNaN(height)) {
+    log('Unable to parse table width.');
+  }
+  el('stereotable').setAttribute('width', width);
+  el('td1').setAttribute('width', width / 2);
+  el('td2').setAttribute('width', width / 2);
+  el('stereotable').setAttribute('height', height);
+  el('td1').setAttribute('height', height);
+  el('td2').setAttribute('height', height);
+}
+
+  </script>
+
+
+
+<script src="http://www.google.com/uds/?file=earth&amp;v=1" type="text/javascript"></script>
+<script src="http://www.google.com/uds/api/earth/1.0/db22e5693e0a8de1f62f3536f5a8d7d3/default.I.js" type="text/javascript"></script>
+<script src="http://maps.google.com/maps?file=googleapi&amp;key=AIzaSyALtjBBO2mkgzbmXjAZaWsnCH7UJ6uK7oM&amp;v=2" type="text/javascript"></script>
+<script src="http://maps.gstatic.com/maps-api-v3/api/js/19/10/main.js"></script>
+<script src="http://maps.gstatic.com/maps-api-v3/api/js/19/10/adsense.js"></script>
+<script src="http://maps.gstatic.com/maps-api-v3/api/js/19/10/geometry.js"></script>
+<script src="http://maps.gstatic.com/maps-api-v3/api/js/19/10/zombie.js"></script>
+<script type="text/javascript" charset="UTF-8" src="http://maps.gstatic.com/maps-api-v3/api/js/19/10/common.js"></script>
+<script type="text/javascript" charset="UTF-8" src="http://maps.gstatic.com/maps-api-v3/api/js/19/10/util.js"></script>
+<script type="text/javascript" charset="UTF-8" src="http://maps.gstatic.com/maps-api-v3/api/js/19/10/stats.js"></script>
+
+</head>
+<body style='background-color: black' onload='init()' onunload="GUnload()" onKeyDown="return keyDown(event);" onKeyUp="return keyUp(event);" id='body'>
+  <font color="white">
+
+  <div>
+    Stereoscopic Angle: <input type=text value="2.5" size=4 onChange='updateView(ge,ge2);'  name="angle" id="angle">
+    Frame Width: <input type=text value="800" size=4 name="tablewidth" id="tablewidth">
+    Height: <input type=text value="500" size=4 name="tableheight" id="tableheight">
+    <input type=button value="Apply" onclick="adjustTableSize();">
+  </div>
+
+<div>
+    <center>
+    <table name='stereotable' id='stereotable' border=0 style='color: black;' height=500 width=800>
+      <tr>
+        <td name='td1' id='td1' height=500 width=400>
+          <div id='map3d' style='border: 1px solid silver; height: 100%'></div>
+        </td>
+        <td name='td2' id='td2' height=500 width=400>
+          <div id='map3d2' style='border: 1px solid silver; height: 100%'></div>
+        </td>
+      </tr>
+    </table>
+    </center>
+</div>
+</body>
+</html>
